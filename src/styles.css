@@ -1,0 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Poppins:wght@400;600&display=swap');
+
+:root {
+  --raspberry-red: #bd1852;
+  --raspberry-red-dark: #8f0f3c;
+  --peach-outline: #f7cfa0;
+  --burgundy-dark: #7b1041;
+  --green-accent: #73a942;
+  --green-dark: #538d22;
+  --bg-base: #0f0f11;
+  --surface-card: rgba(26, 24, 28, 0.88);
+  --surface-card-border: rgba(247, 207, 160, 0.24);
+  --text-primary: #f4f4f8;
+  --text-secondary: rgba(244, 244, 248, 0.72);
+}
+
+body {
+  background: radial-gradient(circle at top, #16161d 0%, #0b0b0d 55%, #000 100%);
+  color: var(--text-primary);
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+.title {
+  font-family: 'Audiowide', sans-serif;
+  color: var(--text-primary);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
