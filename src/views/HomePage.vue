@@ -14,7 +14,7 @@ const startGame = () => {
   <main class="home">
     <section class="hero-card">
       <h1 class="title">Trivial</h1>
-      <p class="subtitle">Descubre la paleta del Pokémon #435</p>
+      <p class="subtitle">Acierta las maximas posibles</p>
       <ButtonComponent texto="Start Game" :funcionalidad="startGame" />
     </section>
   </main>

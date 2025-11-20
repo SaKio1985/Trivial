@@ -4,6 +4,9 @@ import obtenerPreguntas from '@/services/api'
 import AnswerCard from '@/components/AnswerCard.vue'
 import BaseLoader from '@/components/BaseLoader.vue'
 import obtenerRespuestas from '@/services/answers'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 // Estado del juego
 const questions = ref([]) // Aqui se cargan todas las preguntas
@@ -13,6 +16,7 @@ const loadQuestions = async () => {
   try {
     const response = await obtenerPreguntas()
     questions.value = response
+    console.log('cargando preguntas')
   } catch (error) {
     console.error('Error cargando preguntas', error)
     questions.value = []
@@ -22,7 +26,7 @@ const loadQuestions = async () => {
 const advanceQuestion = async () => {
   questions.value.shift()
   if (!questions.value.length) {
-    await loadQuestions()
+    router.push({ name: 'finish', params: { score: score.value } })
   }
 }
 
@@ -55,7 +59,7 @@ const handleAnswer = async (answer) => {
 <template>
   <div class="game-container">
     <section class="question-card" v-if="currentQuestion">
-      <h2 class="question-title">{{ currentQuestion.question }}</h2>
+      <h2 v-html="currentQuestion.question" class="question-title"></h2>
       <p class="meta">
         <span>{{ currentQuestion.category }}</span>
         <span>{{ currentQuestion.difficulty }}</span>
@@ -77,13 +81,19 @@ const handleAnswer = async (answer) => {
   background: radial-gradient(circle at top, var(--peach-pastel), #fef2e8 40%, #f7dac5 100%);
   padding: 3rem 1.5rem;
   position: relative;
+  align-items: center;
 }
 .question-card {
   background: rgba(255, 255, 255, 0.9);
   border-radius: 28px;
   padding: 3rem;
-  width: min(700px, 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
   box-shadow: 0 18px 60px rgba(123, 16, 65, 0.18);
+  width: 800px;
+  height: 800px;
 }
 .question-title {
   font-family: 'Audiowide', sans-serif;

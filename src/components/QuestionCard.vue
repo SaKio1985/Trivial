@@ -25,6 +25,8 @@ defineEmits(['answer'])
   margin: 20px;
   padding: 20px;
   border: 1px solid #ccc;
+  width: 800px;
+  height: 800px;
 }
 .meta {
   margin-bottom: 10px;
