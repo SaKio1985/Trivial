@@ -1,10 +1,16 @@
 @import './base.css';
 
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 #app {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
   font-weight: normal;
+  width: 100%;
 }
 
 a,
@@ -21,15 +27,40 @@ a,
   }
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
+/* Responsive utilities */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Mejora para pantallas táctiles */
+@media (max-width: 768px) {
+  * {
+    -webkit-tap-highlight-color: transparent;
   }
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
+  button,
+  a {
+    min-height: 44px; /* Tamaño mínimo recomendado para táctil */
+    min-width: 44px;
+  }
+}
+
+/* Ocultar scrollbar en móvil si es necesario */
+@media (max-width: 480px) {
+  body {
+    overflow-x: hidden;
+  }
+}
+
+/* Landscape móvil */
+@media (max-width: 896px) and (orientation: landscape) {
+  .game-container,
+  .finish-container,
+  .home {
+    min-height: 100vh;
+    padding: 1rem 2rem;
   }
 }

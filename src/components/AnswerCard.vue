@@ -16,9 +16,13 @@ const selectAnswer = (answer) => {
 
 <template>
   <div class="answers">
-    <button v-for="answer in answers" :key="answer.id" type="button" @click="selectAnswer(answer)">
-      {{ answer.text }}
-    </button>
+    <button
+      v-for="answer in answers"
+      :key="answer.id"
+      type="button"
+      @click="selectAnswer(answer)"
+      v-html="answer.text"
+    ></button>
   </div>
 </template>
 
