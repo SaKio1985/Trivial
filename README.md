@@ -8,15 +8,17 @@ Un juego interactivo de preguntas y respuestas (Trivial) desarrollado con **Vue 
 
 ## 📋 Características
 
-- **Arquitectura de Componentes:** Separación lógica entre `QuestionCard` (pregunta) y `AnswerCard` (respuestas).
+- **Arquitectura de Componentes:** Separación lógica entre componentes reutilizables (`AnswerCard`, `BaseLoader`, `ButtonComponent`, `QuestionCard`).
+- **Sistema de Vistas:** Navegación entre páginas (`HomePage`, `GamePage`, `FinishPage`) con Vue Router.
 - **Gestión de Estado Reactivo:** Uso de `ref` y `computed` para manejar la puntuación y el flujo de preguntas.
 - **API Externa:** Integración con [Open Trivia Database](https://opentdb.com/) para obtener preguntas infinitas.
 - **Lógica de Juego:**
   - Mezcla aleatoria de respuestas (correcta e incorrectas).
   - Sistema de puntuación acumulativa.
-  - Decodificación de entidades HTML en los textos.
-- **Diseño Responsivo:** Interfaz adaptable a móviles y escritorio.
-- **Estilos Personalizados:** Uso de variables CSS nativas.
+  - Renderizado correcto de entidades HTML (`v-html`) en preguntas, categorías, dificultad y respuestas.
+- **Diseño Responsivo:** Interfaz adaptable a móviles y escritorio con gradientes y animaciones.
+- **Estilos Personalizados:** Uso de variables CSS nativas con paleta de colores frambuesa y melocotón.
+- **Identidad Visual:** Título personalizado "Trivial" y favicon temático.
 
 ## 🚀 Instalación y Uso
 
@@ -52,16 +54,25 @@ El proyecto sigue una estructura modular para facilitar la escalabilidad:
 
 ```text
 src/
-├── assets/            # Archivos estáticos (CSS global, logos)
+├── assets/            # Archivos estáticos (CSS global, fuentes)
 ├── components/
-│   ├── QuestionCard.vue  # Componente visual para la pregunta
-│   └── AnswerCard.vue    # Componente visual para las opciones de respuesta
+│   ├── AnswerCard.vue      # Componente para mostrar opciones de respuesta
+│   ├── BaseLoader.vue      # Componente de carga animado
+│   ├── ButtonComponent.vue # Botón reutilizable
+│   └── QuestionCard.vue    # Componente visual para la pregunta
 ├── services/
 │   ├── api.js         # Lógica de conexión con Open Trivia DB
-│   ├── answers.js     # Algoritmo para mezclar (shuffle) respuestas
-│   └── translator.js  # (Opcional) Servicio de traducción
-├── App.vue            # Componente principal y lógica del juego
+│   └── answers.js     # Algoritmo para mezclar (shuffle) respuestas
+├── views/
+│   ├── HomePage.vue   # Página de inicio del juego
+│   ├── GamePage.vue   # Página principal del juego
+│   └── FinishPage.vue # Página de resultados finales
+├── router/
+│   └── index.js       # Configuración de rutas
+├── App.vue            # Componente raíz
 └── main.js            # Punto de entrada
+public/
+└── favicon.png        # Icono personalizado de la aplicación
 ```
 
 ## 🎨 Paleta de Colores
@@ -83,10 +94,13 @@ El diseño utiliza una paleta de colores personalizada definida en variables CSS
 
 ## 🔮 Mejoras Futuras (Roadmap)
 
+- [x] Renderizado correcto de entidades HTML con `v-html`.
+- [x] Sistema de navegación entre páginas (Home, Game, Finish).
+- [x] Personalización de título e icono.
 - [ ] Implementar traducción automática al español (Google Translate API / MyMemory).
 - [ ] Añadir selector de categorías (Cine, Historia, Deportes).
 - [ ] Temporizador cuenta atrás por pregunta.
-- [ ] Pantalla de "Game Over" con resumen de estadísticas.
+- [ ] Modo multijugador local.
 
 ## 🤝 Contribución
 
