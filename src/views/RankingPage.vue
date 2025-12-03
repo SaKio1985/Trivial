@@ -1,174 +1,220 @@
 <script setup>
-import battleAudio from '@/assets/Fanfare.mp3'
-import { onMounted } from 'vue'
+import battleAudio from '@/assets/Fanfare.opus'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const currentAudio = ref(null)
+
+// Datos de ejemplo
+const listRanking = ref([
+  { name: 'JUA', score: 50000 },
+  { name: 'PED', score: 45000 },
+  { name: 'MAR', score: 40000 },
+  { name: 'LUI', score: 35000 },
+  { name: 'ANA', score: 30000 },
+])
+
+const stopMusic = () => {
+  if (currentAudio.value) {
+    currentAudio.value.pause()
+    currentAudio.value.currentTime = 0
+  }
+}
 
 onMounted(() => {
-  const audio = new Audio(battleAudio)
-  audio.play()
+  currentAudio.value = new Audio(battleAudio)
+  currentAudio.value.volume = 0.5
+  currentAudio.value.play().catch((e) => console.log('Audio play failed:', e))
 })
 
-const listRanking = [
-  {
-    name: 'Juan',
-    score: 10,
-  },
-  {
-    name: 'Pedro',
-    score: 9,
-  },
-  {
-    name: 'Maria',
-    score: 8,
-  },
-  {
-    name: 'Luis',
-    score: 7,
-  },
-  {
-    name: 'Ana',
-    score: 6,
-  },
-]
+onUnmounted(() => {
+  stopMusic()
+})
 
 const restartGame = () => {
+  stopMusic()
   router.push({ name: 'game' })
 }
 
 const goHome = () => {
+  stopMusic()
   router.push({ name: 'home' })
 }
 </script>
 
 <template>
-  <div class="finish-container">
-    <div class="finish-card">
-      <h1 class="title">Ranking</h1>
-      <div class="ranking" v-for="(user, index) in listRanking" :key="user.name">
-        {{ index + 1 }}. {{ user.name }} score: {{ user.score }}
-      </div>
-      <div class="button-group">
-        <button class="btn-primary" @click="restartGame">🔄 Jugar de nuevo</button>
-        <button class="btn-secondary" @click="goHome">🏠 Ir al inicio</button>
-      </div>
+  <div class="arcade-container">
+    <h1 class="title">TOP PLAYERS</h1>
+
+    <!-- Usamos una tabla HTML estándar para simplificar la estructura -->
+    <table class="ranking-table">
+      <thead>
+        <tr>
+          <th>RANK</th>
+          <th>SCORE</th>
+          <th>NAME</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="(user, index) in listRanking"
+          :key="user.name"
+          :class="{ 'first-place': index === 0 }"
+        >
+          <td>{{ index + 1 }}</td>
+          <td>{{ user.score }}</td>
+          <td>{{ user.name }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="actions">
+      <button class="btn-arcade" @click="restartGame">INSERT COIN (RESTART)</button>
+      <button class="btn-arcade" @click="goHome">EXIT</button>
     </div>
+
+    <!-- Botón de silenciar música en la esquina superior derecha -->
+    <button class="mute-button" @click="stopMusic" aria-label="Silenciar música">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+        <line x1="23" y1="9" x2="17" y2="15"></line>
+        <line x1="17" y1="9" x2="23" y2="15"></line>
+      </svg>
+    </button>
   </div>
 </template>
 
 <style scoped>
-.finish-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* Estilos base simples */
+.arcade-container {
+  background-color: black;
+  color: white;
   min-height: 100vh;
-  background: radial-gradient(circle at top, var(--peach-pastel), #fef2e8 40%, #f7dac5 100%);
-  padding: 1rem;
-}
-
-.finish-card {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 28px;
-  box-shadow: 0 20px 60px rgba(123, 16, 65, 0.2);
-  padding: 3rem;
-  text-align: center;
-  width: 100%;
-  max-width: 500px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
+  justify-content: center;
+  position: relative; /* Para posicionar el botón de silencio */
+  /* Usamos una fuente monoespaciada estándar que todos los navegadores tienen */
+  font-family: 'Courier New', Courier, monospace;
 }
 
 .title {
-  font-family: 'Audiowide', sans-serif;
-  color: var(--burgundy-dark);
-  font-size: clamp(1.8rem, 5vw, 2.5rem);
-  margin: 0;
+  color: #ff0000; /* Rojo arcade */
+  font-size: 3rem;
+  margin-bottom: 2rem;
+  text-shadow: 4px 4px 0px #8b0000; /* Sombra sólida simple */
 }
 
-.button-group {
+.ranking-table {
+  width: 100%;
+  max-width: 600px;
+  border-collapse: collapse; /* Elimina espacios entre bordes de celda */
+  margin-bottom: 3rem;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+th {
+  color: #00ffff; /* Cyan */
+  padding: 15px;
+  border-bottom: 4px solid #00ffff;
+  letter-spacing: 2px;
+}
+
+td {
+  padding: 15px;
+  color: #ffff00; /* Amarillo por defecto */
+}
+
+/* Clase especial para el primer lugar */
+.first-place td {
+  color: #ff00ff; /* Magenta */
+  font-weight: bold;
+}
+
+.actions {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  width: 100%;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-button {
-  padding: 1rem 2rem;
-  border: none;
-  border-radius: 14px;
-  font-size: clamp(0.9rem, 2vw, 1.1rem);
-  font-weight: 600;
+.btn-arcade {
+  background: transparent;
+  border: 4px solid white;
+  color: white;
+  padding: 15px 30px;
+  font-family: inherit; /* Hereda la fuente Courier */
+  font-size: 1.2rem;
+  font-weight: bold;
   cursor: pointer;
-  transition: all 0.3s ease;
-  width: 100%;
+  transition: all 0.2s;
 }
 
-.btn-primary {
-  background: var(--raspberry-red);
-  color: white;
-  box-shadow: 0 8px 20px rgba(189, 24, 82, 0.25);
-}
-
-.btn-primary:hover {
-  background: var(--raspberry-red-dark);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 25px rgba(189, 24, 82, 0.35);
-}
-
-.btn-secondary {
-  background: white;
-  color: var(--raspberry-red);
-  border: 2px solid var(--raspberry-red);
-}
-
-.btn-secondary:hover {
-  background: var(--raspberry-red);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(189, 24, 82, 0.25);
-}
-
-button:active {
-  transform: translateY(0);
-}
-
-/* Tablet */
-@media (max-width: 768px) {
-  .finish-card {
-    padding: 2.5rem;
-    gap: 1.5rem;
-  }
-
-  button {
-    padding: 0.9rem 1.8rem;
-  }
-}
-
-/* Mobile */
-@media (max-width: 480px) {
-  .finish-container {
-    padding: 0.5rem;
-  }
-
-  .finish-card {
-    padding: 2rem 1.5rem;
-    border-radius: 20px;
-    gap: 1.5rem;
-  }
-
-  .button-group {
-    gap: 0.85rem;
-  }
-
-  button {
-    padding: 0.85rem 1.5rem;
-  }
-}
-
-.ranking {
+.btn-arcade:hover {
+  background-color: white;
   color: black;
+  transform: scale(1.05); /* Pequeño efecto de zoom */
+}
+
+/* Botón de silencio flotante */
+.mute-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: rgba(255, 0, 0, 0.8);
+  border: 3px solid white;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  padding: 12px;
+}
+
+.mute-button:hover {
+  background-color: rgba(255, 0, 0, 1);
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+}
+
+.mute-button svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Ajuste para móviles */
+@media (max-width: 600px) {
+  .title {
+    font-size: 2rem;
+  }
+  .ranking-table {
+    font-size: 1rem;
+  }
+  .btn-arcade {
+    padding: 10px 20px;
+    font-size: 1rem;
+  }
+  .mute-button {
+    width: 50px;
+    height: 50px;
+    top: 15px;
+    right: 15px;
+  }
 }
 </style>

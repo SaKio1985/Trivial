@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import obtenerPreguntas from '@/services/api'
 import AnswerCard from '@/components/AnswerCard.vue'
 import BaseLoader from '@/components/BaseLoader.vue'
+import GiphyHeader from '@/components/GiphyHeader.vue'
 import obtenerRespuestas from '@/services/answers'
 import { useRouter } from 'vue-router'
 
@@ -59,12 +60,15 @@ const handleAnswer = async (answer) => {
 <template>
   <div class="game-container">
     <section class="question-card" v-if="currentQuestion">
-      <h2 v-html="currentQuestion.question" class="question-title"></h2>
-      <p class="meta">
-        <span class="category" v-html="currentQuestion.category"></span>
-        <span class="difficulty" v-html="currentQuestion.difficulty"></span>
-      </p>
-      <AnswerCard :answers="currentAnswers" @select="handleAnswer" />
+      <GiphyHeader :category="currentQuestion.category" />
+      <div class="card-content">
+        <h2 v-html="currentQuestion.question" class="question-title"></h2>
+        <p class="meta">
+          <span class="category" v-html="currentQuestion.category"></span>
+          <span class="difficulty" v-html="currentQuestion.difficulty"></span>
+        </p>
+        <AnswerCard :answers="currentAnswers" @select="handleAnswer" />
+      </div>
     </section>
     <div v-else class="loader">
       <BaseLoader :size="70" :color="'var(--peach-outline)'" />
@@ -86,14 +90,22 @@ const handleAnswer = async (answer) => {
 .question-card {
   background: rgba(255, 255, 255, 0.9);
   border-radius: 28px;
-  padding: 2rem;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   box-shadow: 0 18px 60px rgba(123, 16, 65, 0.18);
   width: 100%;
   max-width: 800px;
   min-height: 500px;
+  overflow: hidden;
+}
+
+.card-content {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
   gap: 2rem;
 }
 .question-title {
@@ -160,9 +172,12 @@ const handleAnswer = async (answer) => {
   }
 
   .question-card {
-    padding: 1.5rem;
     border-radius: 20px;
     min-height: auto;
+  }
+
+  .card-content {
+    padding: 1.5rem;
     gap: 1.5rem;
   }
 
@@ -179,8 +194,11 @@ const handleAnswer = async (answer) => {
   }
 
   .question-card {
-    padding: 1.25rem;
     border-radius: 16px;
+  }
+
+  .card-content {
+    padding: 1.25rem;
     gap: 1.25rem;
   }
 
