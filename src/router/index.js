@@ -23,7 +23,7 @@ const router = createRouter({
       component: FInishPage,
     },
     {
-      path: '/ranking',
+      path: '/ranking/:score',
       name: 'ranking',
       component: RankingPage,
     },

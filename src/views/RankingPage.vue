@@ -1,24 +1,32 @@
 <script setup>
 import battleAudio from '@/assets/Fanfare.opus'
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const score = computed(() => router.currentRoute.value.params.score || 0)
 const currentAudio = ref(null)
 
 // Datos de ejemplo
 const listRanking = ref([
-  { name: 'JUA', score: 50000 },
-  { name: 'PED', score: 45000 },
-  { name: 'MAR', score: 40000 },
-  { name: 'LUI', score: 35000 },
-  { name: 'ANA', score: 30000 },
+  { name: 'JUA', score: 9 },
+  { name: 'PED', score: 8 },
+  { name: 'MAR', score: 7 },
+  { name: 'LUI', score: 6 },
+  { name: 'ANA', score: 5 },
 ])
 
-const stopMusic = () => {
-  if (currentAudio.value) {
+const isPlaying = ref(true)
+
+const stopPlayMusic = () => {
+  if (currentAudio.value && isPlaying.value) {
     currentAudio.value.pause()
-    currentAudio.value.currentTime = 0
+    isPlaying.value = false
+    console.log('Audio pausado')
+  } else if (currentAudio.value && !isPlaying.value) {
+    currentAudio.value.play()
+    isPlaying.value = true
+    console.log('Audio reanudado')
   }
 }
 
@@ -26,19 +34,21 @@ onMounted(() => {
   currentAudio.value = new Audio(battleAudio)
   currentAudio.value.volume = 0.5
   currentAudio.value.play().catch((e) => console.log('Audio play failed:', e))
+  console.log('Score:', score.value)
+  console.log('El ultimo del ranking:', listRanking.value[listRanking.value.length - 1].score)
 })
 
 onUnmounted(() => {
-  stopMusic()
+  stopPlayMusic()
 })
 
 const restartGame = () => {
-  stopMusic()
+  stopPlayMusic()
   router.push({ name: 'game' })
 }
 
 const goHome = () => {
-  stopMusic()
+  stopPlayMusic()
   router.push({ name: 'home' })
 }
 </script>
@@ -46,6 +56,42 @@ const goHome = () => {
 <template>
   <div class="arcade-container">
     <h1 class="title">TOP PLAYERS</h1>
+
+    <!-- Botón de silenciar música en la esquina superior derecha -->
+    <!-- Botón de Play/Pause en la esquina superior derecha -->
+    <button
+      class="mute-button"
+      @click="stopPlayMusic"
+      :aria-label="isPlaying ? 'Pausar música' : 'Reproducir música'"
+    >
+      <!-- Icono de Pausa (cuando está sonando) -->
+      <svg
+        v-if="isPlaying"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <rect x="6" y="4" width="4" height="16"></rect>
+        <rect x="14" y="4" width="4" height="16"></rect>
+      </svg>
+      <!-- Icono de Play (cuando está pausado) -->
+      <svg
+        v-else
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+      </svg>
+    </button>
 
     <!-- Usamos una tabla HTML estándar para simplificar la estructura -->
     <table class="ranking-table">
@@ -73,23 +119,6 @@ const goHome = () => {
       <button class="btn-arcade" @click="restartGame">INSERT COIN (RESTART)</button>
       <button class="btn-arcade" @click="goHome">EXIT</button>
     </div>
-
-    <!-- Botón de silenciar música en la esquina superior derecha -->
-    <button class="mute-button" @click="stopMusic" aria-label="Silenciar música">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-        <line x1="23" y1="9" x2="17" y2="15"></line>
-        <line x1="17" y1="9" x2="23" y2="15"></line>
-      </svg>
-    </button>
   </div>
 </template>
 
@@ -169,9 +198,6 @@ td {
 
 /* Botón de silencio flotante */
 .mute-button {
-  position: fixed;
-  top: 20px;
-  right: 20px;
   width: 60px;
   height: 60px;
   border-radius: 50%;
