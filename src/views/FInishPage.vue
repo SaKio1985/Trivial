@@ -15,7 +15,7 @@ const getMessage = () => {
 
 onMounted(() => {
   setTimeout(() => {
-    router.push({ name: 'ranking' })
+    router.push({ name: 'ranking', params: { score: score.value } })
   }, 3000)
 })
 </script>

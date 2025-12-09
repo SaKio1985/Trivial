@@ -4,10 +4,10 @@ import { onMounted, onUnmounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const score = computed(() => router.currentRoute.value.params.score || 0)
+const score = computed(() => Number(router.currentRoute.value.params.score) || 0)
 const currentAudio = ref(null)
 
-// Datos de ejemplo
+// Datos de ejemplo del ranking base
 const listRanking = ref([
   { name: 'JUA', score: 9 },
   { name: 'PED', score: 8 },
@@ -16,7 +16,58 @@ const listRanking = ref([
   { name: 'ANA', score: 5 },
 ])
 
+// === PASO 1: Variables para el sistema de ranking ===
+const showNameInput = ref(false) // Controla si mostramos el input de nombre
+const playerName = ref('') // Almacena el nombre que escribe el usuario
+const playerAdded = ref(false) // Indica si el jugador ya fue añadido al ranking
+
 const isPlaying = ref(true)
+
+// === PASO 2: Función para verificar si el usuario merece entrar al ranking ===
+const deservesRanking = computed(() => {
+  // Obtenemos el score del último jugador del ranking
+  const lastScore = listRanking.value[listRanking.value.length - 1].score
+  // Si el score del usuario es MAYOR que el último, merece entrar
+  return score.value > lastScore
+})
+
+// === PASO 3: Función para formatear el nombre ===
+const formatName = (name) => {
+  // Tomamos las primeras 3 letras y las convertimos a mayúsculas
+  // Si el nombre tiene menos de 3 letras, usamos lo que haya
+  return name.substring(0, 3).toUpperCase()
+}
+
+// === PASO 4: Función para insertar al jugador en el ranking ===
+const addToRanking = () => {
+  // Validamos que el nombre tenga al menos 1 caracter
+  if (playerName.value.trim().length === 0) {
+    alert('Por favor, ingresa tu nombre')
+    return
+  }
+
+  // Formateamos el nombre (3 letras mayúsculas)
+  const formattedName = formatName(playerName.value.trim())
+
+  // Creamos el nuevo jugador
+  const newPlayer = {
+    name: formattedName,
+    score: score.value,
+  }
+
+  // Añadimos el jugador al array
+  listRanking.value.push(newPlayer)
+
+  // Ordenamos el array de mayor a menor por score
+  listRanking.value.sort((a, b) => b.score - a.score)
+
+  // Eliminamos el último (el que quedó fuera del top 5)
+  listRanking.value.pop()
+
+  // Ocultamos el input y marcamos que ya se añadió
+  showNameInput.value = false
+  playerAdded.value = true
+}
 
 const stopPlayMusic = () => {
   if (currentAudio.value && isPlaying.value) {
@@ -34,8 +85,21 @@ onMounted(() => {
   currentAudio.value = new Audio(battleAudio)
   currentAudio.value.volume = 0.5
   currentAudio.value.play().catch((e) => console.log('Audio play failed:', e))
-  console.log('Score:', score.value)
-  console.log('El ultimo del ranking:', listRanking.value[listRanking.value.length - 1].score)
+
+  console.log('Score del jugador:', score.value)
+  console.log(
+    'Score del último del ranking:',
+    listRanking.value[listRanking.value.length - 1].score,
+  )
+  console.log(
+    '¿Merece entrar al ranking?:',
+    score.value > listRanking.value[listRanking.value.length - 1].score,
+  )
+
+  // Si merece entrar al ranking, mostramos el input para el nombre
+  if (deservesRanking.value) {
+    showNameInput.value = true
+  }
 })
 
 onUnmounted(() => {
@@ -56,6 +120,26 @@ const goHome = () => {
 <template>
   <div class="arcade-container">
     <h1 class="title">TOP PLAYERS</h1>
+
+    <!-- === MODAL PARA INGRESAR NOMBRE === -->
+    <!-- Se muestra solo si el usuario merece entrar al ranking -->
+    <div v-if="showNameInput" class="name-modal">
+      <div class="modal-content">
+        <h2 class="modal-title">🎉 ¡NUEVO RECORD! 🎉</h2>
+        <p class="modal-score">Tu puntuación: {{ score }}</p>
+        <p class="modal-instruction">Ingresa tu nombre:</p>
+        <input
+          v-model="playerName"
+          type="text"
+          maxlength="10"
+          placeholder="Tu nombre..."
+          class="name-input"
+          @keyup.enter="addToRanking"
+        />
+        <p class="modal-hint">(Se usarán las primeras 3 letras)</p>
+        <button class="btn-confirm" @click="addToRanking">CONFIRMAR</button>
+      </div>
+    </div>
 
     <!-- Botón de silenciar música en la esquina superior derecha -->
     <!-- Botón de Play/Pause en la esquina superior derecha -->
@@ -105,7 +189,7 @@ const goHome = () => {
       <tbody>
         <tr
           v-for="(user, index) in listRanking"
-          :key="user.name"
+          :key="user.name + user.score"
           :class="{ 'first-place': index === 0 }"
         >
           <td>{{ index + 1 }}</td>
@@ -222,6 +306,110 @@ td {
 .mute-button svg {
   width: 100%;
   height: 100%;
+}
+
+/* === ESTILOS DEL MODAL PARA INGRESAR NOMBRE === */
+.name-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  background: #1a1a2e;
+  border: 4px solid #00ffff;
+  border-radius: 10px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+  animation: modalAppear 0.3s ease-out;
+}
+
+@keyframes modalAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-title {
+  color: #ffff00;
+  font-size: 1.8rem;
+  margin: 0 0 1rem 0;
+  text-shadow: 2px 2px 0px #8b8b00;
+}
+
+.modal-score {
+  color: #00ff00;
+  font-size: 1.5rem;
+  margin: 0 0 1rem 0;
+}
+
+.modal-instruction {
+  color: #ffffff;
+  font-size: 1.2rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.name-input {
+  width: 100%;
+  max-width: 250px;
+  padding: 15px;
+  font-size: 1.5rem;
+  font-family: 'Courier New', Courier, monospace;
+  text-transform: uppercase;
+  text-align: center;
+  background: #000;
+  border: 3px solid #ff00ff;
+  color: #ff00ff;
+  outline: none;
+  margin: 1rem 0;
+}
+
+.name-input:focus {
+  border-color: #ffff00;
+  box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
+}
+
+.name-input::placeholder {
+  color: #666;
+  text-transform: none;
+}
+
+.modal-hint {
+  color: #888;
+  font-size: 0.9rem;
+  margin: 0 0 1rem 0;
+}
+
+.btn-confirm {
+  background: #ff00ff;
+  border: none;
+  color: white;
+  padding: 15px 40px;
+  font-family: inherit;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+
+.btn-confirm:hover {
+  background: #ff66ff;
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(255, 0, 255, 0.6);
 }
 
 /* Ajuste para móviles */
