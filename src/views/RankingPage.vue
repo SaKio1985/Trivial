@@ -2,6 +2,7 @@
 import battleAudio from '@/assets/Fanfare.opus'
 import { onMounted, onUnmounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import ScoreModal from '@/components/ScoreModal.vue'
 
 const router = useRouter()
 const score = computed(() => Number(router.currentRoute.value.params.score) || 0)
@@ -18,7 +19,6 @@ const listRanking = ref([
 
 // === PASO 1: Variables para el sistema de ranking ===
 const showNameInput = ref(false) // Controla si mostramos el input de nombre
-const playerName = ref('') // Almacena el nombre que escribe el usuario
 const playerAdded = ref(false) // Indica si el jugador ya fue añadido al ranking
 
 const isPlaying = ref(true)
@@ -39,15 +39,9 @@ const formatName = (name) => {
 }
 
 // === PASO 4: Función para insertar al jugador en el ranking ===
-const addToRanking = () => {
-  // Validamos que el nombre tenga al menos 1 caracter
-  if (playerName.value.trim().length === 0) {
-    alert('Por favor, ingresa tu nombre')
-    return
-  }
-
+const addToRanking = (name) => {
   // Formateamos el nombre (3 letras mayúsculas)
-  const formattedName = formatName(playerName.value.trim())
+  const formattedName = formatName(name.trim())
 
   // Creamos el nuevo jugador
   const newPlayer = {
@@ -123,23 +117,9 @@ const goHome = () => {
 
     <!-- === MODAL PARA INGRESAR NOMBRE === -->
     <!-- Se muestra solo si el usuario merece entrar al ranking -->
-    <div v-if="showNameInput" class="name-modal">
-      <div class="modal-content">
-        <h2 class="modal-title">🎉 ¡NUEVO RECORD! 🎉</h2>
-        <p class="modal-score">Tu puntuación: {{ score }}</p>
-        <p class="modal-instruction">Ingresa tu nombre:</p>
-        <input
-          v-model="playerName"
-          type="text"
-          maxlength="10"
-          placeholder="Tu nombre..."
-          class="name-input"
-          @keyup.enter="addToRanking"
-        />
-        <p class="modal-hint">(Se usarán las primeras 3 letras)</p>
-        <button class="btn-confirm" @click="addToRanking">CONFIRMAR</button>
-      </div>
-    </div>
+    <!-- === MODAL PARA INGRESAR NOMBRE === -->
+    <!-- Se muestra solo si el usuario merece entrar al ranking -->
+    <ScoreModal v-if="showNameInput" :score="score" @confirm="addToRanking" />
 
     <!-- Botón de silenciar música en la esquina superior derecha -->
     <!-- Botón de Play/Pause en la esquina superior derecha -->
@@ -306,110 +286,6 @@ td {
 .mute-button svg {
   width: 100%;
   height: 100%;
-}
-
-/* === ESTILOS DEL MODAL PARA INGRESAR NOMBRE === */
-.name-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-}
-
-.modal-content {
-  background: #1a1a2e;
-  border: 4px solid #00ffff;
-  border-radius: 10px;
-  padding: 2rem;
-  text-align: center;
-  box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
-  animation: modalAppear 0.3s ease-out;
-}
-
-@keyframes modalAppear {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.modal-title {
-  color: #ffff00;
-  font-size: 1.8rem;
-  margin: 0 0 1rem 0;
-  text-shadow: 2px 2px 0px #8b8b00;
-}
-
-.modal-score {
-  color: #00ff00;
-  font-size: 1.5rem;
-  margin: 0 0 1rem 0;
-}
-
-.modal-instruction {
-  color: #ffffff;
-  font-size: 1.2rem;
-  margin: 0 0 0.5rem 0;
-}
-
-.name-input {
-  width: 100%;
-  max-width: 250px;
-  padding: 15px;
-  font-size: 1.5rem;
-  font-family: 'Courier New', Courier, monospace;
-  text-transform: uppercase;
-  text-align: center;
-  background: #000;
-  border: 3px solid #ff00ff;
-  color: #ff00ff;
-  outline: none;
-  margin: 1rem 0;
-}
-
-.name-input:focus {
-  border-color: #ffff00;
-  box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
-}
-
-.name-input::placeholder {
-  color: #666;
-  text-transform: none;
-}
-
-.modal-hint {
-  color: #888;
-  font-size: 0.9rem;
-  margin: 0 0 1rem 0;
-}
-
-.btn-confirm {
-  background: #ff00ff;
-  border: none;
-  color: white;
-  padding: 15px 40px;
-  font-family: inherit;
-  font-size: 1.2rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-transform: uppercase;
-}
-
-.btn-confirm:hover {
-  background: #ff66ff;
-  transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(255, 0, 255, 0.6);
 }
 
 /* Ajuste para móviles */
