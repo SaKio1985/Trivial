@@ -16,6 +16,9 @@ const listRanking = ref([
   { name: 'LUI', score: 6 },
   { name: 'ANA', score: 5 },
 ])
+if (localStorage.getItem('ranking')) {
+  listRanking.value = JSON.parse(localStorage.getItem('ranking'))
+}
 
 // === PASO 1: Variables para el sistema de ranking ===
 const showNameInput = ref(false) // Controla si mostramos el input de nombre
@@ -57,6 +60,8 @@ const addToRanking = (name) => {
 
   // Eliminamos el último (el que quedó fuera del top 5)
   listRanking.value.pop()
+
+  localStorage.setItem('ranking', JSON.stringify(listRanking.value))
 
   // Ocultamos el input y marcamos que ya se añadió
   showNameInput.value = false
