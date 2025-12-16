@@ -5,7 +5,6 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const startGame = () => {
-  //alert('Game started')
   router.push({ name: 'game' })
 }
 </script>
@@ -19,7 +18,6 @@ const startGame = () => {
     </section>
   </main>
 </template>
-º
 
 <style scoped>
 .home {
@@ -80,7 +78,6 @@ button:active {
   transform: translateY(0);
 }
 
-/* Tablet */
 @media (max-width: 768px) {
   .hero-card {
     padding: 2.5rem;
@@ -93,7 +90,6 @@ button:active {
   }
 }
 
-/* Mobile */
 @media (max-width: 480px) {
   .home {
     padding: 0.5rem;

@@ -9,17 +9,14 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-// Estado del juego
-const questions = ref([]) // Aqui se cargan todas las preguntas
+const questions = ref([])
 const score = ref(0)
 
 const loadQuestions = async () => {
   try {
     const response = await obtenerPreguntas()
     questions.value = response
-    console.log('cargando preguntas')
-  } catch (error) {
-    console.error('Error cargando preguntas', error)
+  } catch {
     questions.value = []
   }
 }
@@ -39,20 +36,14 @@ const currentAnswers = computed(() => {
   return obtenerRespuestas(incorrect_answers, correct_answer)
 })
 
-// Cargar una pregunta al montar la página
 onMounted(() => {
   loadQuestions()
 })
 
-// Manejar la respuesta del usuario
 const handleAnswer = async (answer) => {
   if (answer.isCorrect) {
     score.value++
-    console.log('¡Correcto!')
-  } else {
-    console.log('Incorrecto')
   }
-
   await advanceQuestion()
 }
 </script>
@@ -122,7 +113,6 @@ const handleAnswer = async (answer) => {
   color: var(--burgundy-dark);
   flex-wrap: wrap;
 }
-/* ✨ MEJORAS EN LAS ETIQUETAS */
 .meta span {
   display: inline-block;
   padding: 0.5rem 1rem;
@@ -187,7 +177,6 @@ const handleAnswer = async (answer) => {
   }
 }
 
-/* Mobile */
 @media (max-width: 480px) {
   .game-container {
     padding: 0.5rem;

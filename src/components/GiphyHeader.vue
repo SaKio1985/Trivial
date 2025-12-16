@@ -35,7 +35,6 @@ const fetchGif = async (searchTerm) => {
     if (data.data && data.data.length > 0) {
       gifUrl.value = data.data[0].images.original.url
     } else {
-      // Fallback si no hay resultados
       gifUrl.value = ''
     }
   } catch (error) {
@@ -66,7 +65,7 @@ watch(
 <style scoped>
 .giphy-header {
   width: 100%;
-  height: 150px; /* Altura fija para el header */
+  height: 150px;
   overflow: hidden;
   position: relative;
   border-radius: 0 0 20px 20px;

@@ -8,7 +8,7 @@ const router = useRouter()
 const score = computed(() => Number(router.currentRoute.value.params.score) || 0)
 const currentAudio = ref(null)
 
-// Datos de ejemplo del ranking base
+// Ranking inicial (se sobrescribe con localStorage si existe)
 const listRanking = ref([
   { name: 'JUA', score: 9 },
   { name: 'PED', score: 8 },
@@ -20,50 +20,29 @@ if (localStorage.getItem('ranking')) {
   listRanking.value = JSON.parse(localStorage.getItem('ranking'))
 }
 
-// === PASO 1: Variables para el sistema de ranking ===
-const showNameInput = ref(false) // Controla si mostramos el input de nombre
-const playerAdded = ref(false) // Indica si el jugador ya fue añadido al ranking
+const showNameInput = ref(false)
+const playerAdded = ref(false)
 
 const isPlaying = ref(true)
 
-// === PASO 2: Función para verificar si el usuario merece entrar al ranking ===
 const deservesRanking = computed(() => {
-  // Obtenemos el score del último jugador del ranking
   const lastScore = listRanking.value[listRanking.value.length - 1].score
-  // Si el score del usuario es MAYOR que el último, merece entrar
   return score.value > lastScore
 })
 
-// === PASO 3: Función para formatear el nombre ===
 const formatName = (name) => {
-  // Tomamos las primeras 3 letras y las convertimos a mayúsculas
-  // Si el nombre tiene menos de 3 letras, usamos lo que haya
   return name.substring(0, 3).toUpperCase()
 }
 
-// === PASO 4: Función para insertar al jugador en el ranking ===
 const addToRanking = (name) => {
-  // Formateamos el nombre (3 letras mayúsculas)
   const formattedName = formatName(name.trim())
+  const newPlayer = { name: formattedName, score: score.value }
 
-  // Creamos el nuevo jugador
-  const newPlayer = {
-    name: formattedName,
-    score: score.value,
-  }
-
-  // Añadimos el jugador al array
   listRanking.value.push(newPlayer)
-
-  // Ordenamos el array de mayor a menor por score
   listRanking.value.sort((a, b) => b.score - a.score)
-
-  // Eliminamos el último (el que quedó fuera del top 5)
   listRanking.value.pop()
 
   localStorage.setItem('ranking', JSON.stringify(listRanking.value))
-
-  // Ocultamos el input y marcamos que ya se añadió
   showNameInput.value = false
   playerAdded.value = true
 }
@@ -72,30 +51,17 @@ const stopPlayMusic = () => {
   if (currentAudio.value && isPlaying.value) {
     currentAudio.value.pause()
     isPlaying.value = false
-    console.log('Audio pausado')
   } else if (currentAudio.value && !isPlaying.value) {
     currentAudio.value.play()
     isPlaying.value = true
-    console.log('Audio reanudado')
   }
 }
 
 onMounted(() => {
   currentAudio.value = new Audio(battleAudio)
   currentAudio.value.volume = 0.5
-  currentAudio.value.play().catch((e) => console.log('Audio play failed:', e))
+  currentAudio.value.play().catch(() => {})
 
-  console.log('Score del jugador:', score.value)
-  console.log(
-    'Score del último del ranking:',
-    listRanking.value[listRanking.value.length - 1].score,
-  )
-  console.log(
-    '¿Merece entrar al ranking?:',
-    score.value > listRanking.value[listRanking.value.length - 1].score,
-  )
-
-  // Si merece entrar al ranking, mostramos el input para el nombre
   if (deservesRanking.value) {
     showNameInput.value = true
   }
@@ -120,20 +86,13 @@ const goHome = () => {
   <div class="arcade-container">
     <h1 class="title">TOP PLAYERS</h1>
 
-    <!-- === MODAL PARA INGRESAR NOMBRE === -->
-    <!-- Se muestra solo si el usuario merece entrar al ranking -->
-    <!-- === MODAL PARA INGRESAR NOMBRE === -->
-    <!-- Se muestra solo si el usuario merece entrar al ranking -->
     <ScoreModal v-if="showNameInput" :score="score" @confirm="addToRanking" />
 
-    <!-- Botón de silenciar música en la esquina superior derecha -->
-    <!-- Botón de Play/Pause en la esquina superior derecha -->
     <button
       class="mute-button"
       @click="stopPlayMusic"
       :aria-label="isPlaying ? 'Pausar música' : 'Reproducir música'"
     >
-      <!-- Icono de Pausa (cuando está sonando) -->
       <svg
         v-if="isPlaying"
         xmlns="http://www.w3.org/2000/svg"
@@ -147,7 +106,6 @@ const goHome = () => {
         <rect x="6" y="4" width="4" height="16"></rect>
         <rect x="14" y="4" width="4" height="16"></rect>
       </svg>
-      <!-- Icono de Play (cuando está pausado) -->
       <svg
         v-else
         xmlns="http://www.w3.org/2000/svg"
@@ -162,7 +120,6 @@ const goHome = () => {
       </svg>
     </button>
 
-    <!-- Usamos una tabla HTML estándar para simplificar la estructura -->
     <table class="ranking-table">
       <thead>
         <tr>
@@ -192,7 +149,6 @@ const goHome = () => {
 </template>
 
 <style scoped>
-/* Estilos base simples */
 .arcade-container {
   background-color: black;
   color: white;
@@ -201,29 +157,28 @@ const goHome = () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  position: relative; /* Para posicionar el botón de silencio */
-  /* Usamos una fuente monoespaciada estándar que todos los navegadores tienen */
+  position: relative;
   font-family: 'Courier New', Courier, monospace;
 }
 
 .title {
-  color: #ff0000; /* Rojo arcade */
+  color: #ff0000;
   font-size: 3rem;
   margin-bottom: 2rem;
-  text-shadow: 4px 4px 0px #8b0000; /* Sombra sólida simple */
+  text-shadow: 4px 4px 0px #8b0000;
 }
 
 .ranking-table {
   width: 100%;
   max-width: 600px;
-  border-collapse: collapse; /* Elimina espacios entre bordes de celda */
+  border-collapse: collapse;
   margin-bottom: 3rem;
   font-size: 1.5rem;
   text-align: center;
 }
 
 th {
-  color: #00ffff; /* Cyan */
+  color: #00ffff;
   padding: 15px;
   border-bottom: 4px solid #00ffff;
   letter-spacing: 2px;
@@ -231,12 +186,11 @@ th {
 
 td {
   padding: 15px;
-  color: #ffff00; /* Amarillo por defecto */
+  color: #ffff00;
 }
 
-/* Clase especial para el primer lugar */
 .first-place td {
-  color: #ff00ff; /* Magenta */
+  color: #ff00ff;
   font-weight: bold;
 }
 
@@ -252,7 +206,7 @@ td {
   border: 4px solid white;
   color: white;
   padding: 15px 30px;
-  font-family: inherit; /* Hereda la fuente Courier */
+  font-family: inherit;
   font-size: 1.2rem;
   font-weight: bold;
   cursor: pointer;
@@ -262,10 +216,9 @@ td {
 .btn-arcade:hover {
   background-color: white;
   color: black;
-  transform: scale(1.05); /* Pequeño efecto de zoom */
+  transform: scale(1.05);
 }
 
-/* Botón de silencio flotante */
 .mute-button {
   width: 60px;
   height: 60px;
@@ -293,7 +246,6 @@ td {
   height: 100%;
 }
 
-/* Ajuste para móviles */
 @media (max-width: 600px) {
   .title {
     font-size: 2rem;

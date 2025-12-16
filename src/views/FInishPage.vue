@@ -160,7 +160,6 @@ button:active {
   transform: translateY(0);
 }
 
-/* Tablet */
 @media (max-width: 768px) {
   .finish-card {
     padding: 2.5rem;
@@ -172,7 +171,6 @@ button:active {
   }
 }
 
-/* Mobile */
 @media (max-width: 480px) {
   .finish-container {
     padding: 0.5rem;
